@@ -1,35 +1,62 @@
 const router = require('express').Router()
+const auth_token = require('../middleware/auth_token');
+const {Users,UsersPermissions,ServiceProviders} = require('../models');
 
-const {Users,UsersPermission,ServiceProviders} = require('../models');
 
 router.get("/", async (req, res) => {
-    let providers = await ServiceProviders.findAll({
-        where:{
-            "Status": 'Approved'
+    let idToken = req.headers.authorization
+    if(idToken){
+        // let decodedToken = admin.auth().verifyIdToken(idToken)
+        // let uid = (await decodedToken).uid
+        let uid = idToken
+        let user = await Users.findOne({
+            where:{
+                "uid": uid
+            }
+        })
+        if(user){
+            console.log(idToken)
+            let providers = await ServiceProviders.findAll({
+                attributes: ['id','service','name','pincode','contact']
+            },{
+                where:{
+                    "Status": 'Approved'
+                }
+            })
+            res.send(providers)
+            return;
+        }else{
+            res.send({"message":"Sorry You are not the User"})
         }
-    })
-    res.send(providers)
+    }else{
+        let providers = await ServiceProviders.findAll({
+            attributes: ['id','service','name','pincode']
+        },{
+            where:{
+                "Status": 'Approved'
+            }
+        })
+        res.send(providers)
+        return;
+    }
 })
 
-router.post("/", async (req, res) => {
-    // let idToken = req.headers.firebasetoken
-    // let decodedToken = admin.auth().verifyIdToken(idToken)
-    // let uid = (await decodedToken).uid
-    let uid = 'uid2'
-    let user = await UsersPermission.findOne({
+router.post("/", auth_token, async (req, res) => {
+    let uid = req.uid
+    let user = await UsersPermissions.findOne({
         where:{
-            "UID": uid
+            "uid": uid
         }
     })
     let req_body = {
         ...req.body,
-        "UID":uid,
+        "uid":uid,
     }
-    let isadmin = user.Permission
+    let isadmin = user.permission
     if(isadmin==='admin'){
         req_body = {
             ...req_body,
-            "Status":'Approved'
+            "status":'Approved'
         }
         let save_user = await ServiceProviders.create(req_body)
         res.send(save_user)
@@ -39,85 +66,73 @@ router.post("/", async (req, res) => {
     res.send(save_user)
 })
 
-router.put("/", async (req, res) => {
+router.put("/",auth_token, async (req, res) => {
     let provider_id = req.query.provider_id
-    // let idToken = req.headers.firebasetoken
-    // let decodedToken = admin.auth().verifyIdToken(idToken)
-    // let uid = (await decodedToken).uid
-    let uid = 'uid'
+    let uid = req.uid
     let provider = await ServiceProviders.update({
         ...req.body
     },{
         where:{
-            id: provider_id,
-            UID: uid
+            "id": provider_id,
+            "uid": uid
         }
     })
     if(!provider[0]){
-        res.send({"Message":"Provider is Not Avilable"})
+        res.send({"message":"Provider is Not Avilable"})
         return;
     }else{
-        res.send({"Message":"Updated"})
+        res.send(provider)
         return;
     }
 })
 
-router.delete("/", async (req, res) => {
+router.delete("/",auth_token, async (req, res) => {
     let provider_id = req.query.provider_id
-    // let idToken = req.headers.firebasetoken
-    // let decodedToken = admin.auth().verifyIdToken(idToken)
-    // let uid = (await decodedToken).uid
-    let uid = 'uid2'
+    let uid = req.uid
     let provider = await ServiceProviders.destroy({
         where:{
-            id: provider_id,
-            UID: uid
+            "id": provider_id,
+            "uid": uid
         }
     })
     if(!provider){
-        res.send({"Message":"Provider is Not Avilable"})
+        res.send({"message":"Provider is Not Avilable"})
         return;
     }else{
-        res.send({"Message":"Deleted"})
+        res.send({"message":"Deleted"})
         return;
     }
 })
 
-router.get("/pending", async (req, res) => {
-    // let idToken = req.headers.firebasetoken
-    // let decodedToken = admin.auth().verifyIdToken(idToken)
-    // let uid = (await decodedToken).uid
-    let uid = 'uid2'
-    let user = await UsersPermission.findOne({
+router.get("/pending",auth_token, async (req, res) => {
+    let uid = req.uid
+    let user = await UsersPermissions.findOne({
         where:{
-            "UID": uid
+            "uid": uid
         }
     })
-    let isadmin = user.Permission
+    let isadmin = user.permission
     if(isadmin==='admin'){
         let providers = await ServiceProviders.findAll({
             where:{
-                "Status": 'Pending'
+                "status": 'Pending'
             }
         })
         res.send(providers)
         return;
     }
-    res.send({"Message":"You are not allowed, Only for Admin"})
+    res.send({"message":"You are not allowed, Only for Admin"})
 })
 
-router.put("/change_status", async (req, res) => {
+router.put("/change_status",auth_token, async (req, res) => {
     let provider_id = req.query.provider_id
-    // let idToken = req.headers.firebasetoken
-    // let decodedToken = admin.auth().verifyIdToken(idToken)
-    // let uid = (await decodedToken).uid
-    let uid = 'uid2'
-    let user = await UsersPermission.findOne({
+    let uid = req.uid
+    let user = await UsersPermissions.findOne({
         where:{
-            "UID": uid
+            "uid": uid
         }
     })
-    let isadmin = user.Permission
+    let isadmin = user.permission
     if(isadmin==='admin'){
         let provider = await ServiceProviders.update({
             ...req.body
@@ -127,24 +142,21 @@ router.put("/change_status", async (req, res) => {
             }
         })
         if(!provider[0]){
-            res.send({"Message":"Provider is Not Avilable"})
+            res.send({"message":"Provider is Not Avilable"})
             return;
         }else{
-            res.send({"Message":"Updated"})
+            res.send({"message":"Updated"})
             return;
         }
     }
     res.send({"Message":"You are not allowed, Only for Admin"})
 })
 
-router.get("/status", async (req, res) => {
-    // let idToken = req.headers.firebasetoken
-    // let decodedToken = admin.auth().verifyIdToken(idToken)
-    // let uid = (await decodedToken).uid
-    let uid = 'uid2'
+router.get("/status",auth_token, async (req, res) => {
+    let uid = req.uid
     let providers = await ServiceProviders.findAll({
         where:{
-            "UID": uid
+            "uid": uid
         }
     })
     res.send(providers)

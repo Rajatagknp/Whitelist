@@ -1,21 +1,49 @@
-const bcrypt = require('bcryptjs');
+const uuid = require('uuid');
 
 module.exports = (sequelize, DataTypes) => {
-  const Users = sequelize.define("Users", {
-    Name: {
-      type: DataTypes.STRING,
+  const Users = sequelize.define("users", {
+    id: {
+      type: DataTypes.UUID,
+      unique: true,
+      allowNull: false,
+      defaultValue: () => uuid.v4(),
     },
-    Email: {
+    name: {
       type: DataTypes.STRING,
-    },
-    Contact: {
-      type: DataTypes.STRING,
+      defaultValue: '',
       allowNull: false,
     },
-    UID: {
+    email: {
+      type: DataTypes.STRING,
+      defaultValue: '',
+      allowNull: false,
+      validate: {
+        isEmail: true
+      }
+    },
+    contact: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
+    uid: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      unique: true,
+      primaryKey: true,
+    },
+    createdAt:{
+      type: DataTypes.DATE,
+      field: 'created_at',
+      defaultValue: sequelize.NOW,
+      allowNull: false,
+    },
+    updatedAt: {
+      field: 'updated_at',
+      type: DataTypes.DATE,
+      defaultValue: sequelize.NOW,
+      allowNull: false,
+    }
   });
   return Users;
 }
