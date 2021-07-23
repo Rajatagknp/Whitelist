@@ -1,15 +1,39 @@
 const bcrypt = require('bcryptjs');
 
 module.exports = (sequelize, DataTypes) => {
-  const UsersPermission = sequelize.define("UsersPermission", {
-    UID: {
-      type: DataTypes.STRING,
+  const UserPermissions = sequelize.define("user_permissions", {
+    user_uid: {
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'uid'
+      },
+      allowNull: false,
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
+    },
+    permission_role: {
+      type: DataTypes.ENUM('admin', 'user'),
+      references: {
+        model: 'permissions',
+        key: 'role'
+      },
+      allowNull: false,
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
+    },
+    createdAt:{
+      type: DataTypes.DATE,
+      field: 'created_at',
+      defaultValue: sequelize.NOW,
       allowNull: false,
     },
-    Permission: {
-      type: DataTypes.STRING,
-      defaultValue: 'user',
-    },
+    updatedAt: {
+      field: 'updated_at',
+      type: DataTypes.DATE,
+      defaultValue: sequelize.NOW,
+      allowNull: false,
+    }
   });
-  return UsersPermission;
+  return UserPermissions;
 }
