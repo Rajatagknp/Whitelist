@@ -1,13 +1,13 @@
 
 module.exports = (sequelize, DataTypes) => {
-  const Permissions = sequelize.define("permissions", {
+  return sequelize.define("permissions", {
     role: {
       type: DataTypes.ENUM('admin', 'user'),
       primaryKey: true,
       defaultValue: 'user',
       allowNull: false,
     },
-    createdAt:{
+    createdAt: {
       type: DataTypes.DATE,
       field: 'created_at',
       defaultValue: sequelize.NOW,
@@ -20,5 +20,4 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     }
   });
-  return Permissions;
 }

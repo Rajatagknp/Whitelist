@@ -1,7 +1,7 @@
 const uuid = require('uuid');
 
 module.exports = (sequelize, DataTypes) => {
-  const Users = sequelize.define("users", {
+  return sequelize.define("users", {
     id: {
       type: DataTypes.UUID,
       unique: true,
@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     email: {
       type: DataTypes.STRING,
-      defaultValue: '',
+      defaultValue: 'server@gmail.com',
       allowNull: false,
       validate: {
         isEmail: true
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       primaryKey: true,
     },
-    createdAt:{
+    createdAt: {
       type: DataTypes.DATE,
       field: 'created_at',
       defaultValue: sequelize.NOW,
@@ -45,5 +45,4 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     }
   });
-  return Users;
 }

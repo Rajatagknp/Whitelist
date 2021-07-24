@@ -13,8 +13,8 @@ const auth_token = (req, res, next) => {
             // res.send(error.message)
         })
         req.authtoken = 'decodedToken';
-        req.uid = 'decodedToken.uid';
-        req.contact = 'decodedToken.phone_number';
+        req.uid = idToken;
+        req.contact = idToken;
         next();
     }else{
         res.send({"Message":"Please pass header"})

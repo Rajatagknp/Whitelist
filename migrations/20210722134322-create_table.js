@@ -4,22 +4,24 @@ const uuid = require('uuid')
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+    debugger
+    const {DataTypes} = Sequelize
     return queryInterface.sequelize.transaction( async t => {
       await Promise.all([
         queryInterface.createTable('users', {
           id: {
-            type: Sequelize.DataTypes.UUID,
+            type: DataTypes.UUID,
             unique: true,
             allowNull: false,
             defaultValue: () => uuid.v4(),
           },
           name: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             defaultValue: '',
             allowNull: false,
           },
           email: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             defaultValue: '',
             allowNull: false,
             validate: {
@@ -27,25 +29,25 @@ module.exports = {
             }
           },
           contact: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
             unique: true,
           },
           uid: {
-            type: Sequelize.DataTypes.UUID,
+            type: DataTypes.UUID,
             allowNull: false,
             unique: true,
             primaryKey: true,
           },
           createdAt:{
-            type: Sequelize.DataTypes.DATE,
+            type: DataTypes.DATE,
             field: 'created_at',
             defaultValue: Sequelize.NOW,
             allowNull: false,
           },
           updatedAt: {
             field: 'updated_at',
-            type: Sequelize.DataTypes.DATE,
+            type: DataTypes.DATE,
             defaultValue: Sequelize.NOW,
             allowNull: false,
           }
@@ -53,20 +55,20 @@ module.exports = {
         
         queryInterface.createTable('permissions',{
           role: {
-            type: Sequelize.DataTypes.ENUM('admin', 'user'),
+            type: DataTypes.ENUM('admin', 'user'),
             primaryKey: true,
             defaultValue: 'user',
             allowNull: false,
           },
           createdAt:{
-            type: Sequelize.DataTypes.DATE,
+            type: DataTypes.DATE,
             field: 'created_at',
             defaultValue: Sequelize.NOW,
             allowNull: false,
           },
           updatedAt: {
             field: 'updated_at',
-            type: Sequelize.DataTypes.DATE,
+            type: DataTypes.DATE,
             defaultValue: Sequelize.NOW,
             allowNull: false,
           }
@@ -75,7 +77,7 @@ module.exports = {
       await Promise.all([
         queryInterface.createTable('user_permissions',{
           user_uid: {
-            type: Sequelize.DataTypes.UUID,
+            type: DataTypes.UUID,
             references: {
               model: 'users',
               key: 'uid'
@@ -85,7 +87,7 @@ module.exports = {
             onDelete: 'CASCADE'
           },
           permission_role: {
-            type: Sequelize.DataTypes.ENUM('admin', 'user'),
+            type: DataTypes.ENUM('admin', 'user'),
             references: {
               model: 'permissions',
               key: 'role'
@@ -95,81 +97,81 @@ module.exports = {
             onDelete: 'CASCADE'
           },
           createdAt:{
-            type: Sequelize.DataTypes.DATE,
+            type: DataTypes.DATE,
             field: 'created_at',
             defaultValue: Sequelize.NOW,
             allowNull: false,
           },
           updatedAt: {
             field: 'updated_at',
-            type: Sequelize.DataTypes.DATE,
+            type: DataTypes.DATE,
             defaultValue: Sequelize.NOW,
             allowNull: false,
           }
         }, { transaction: t }),
         queryInterface.createTable('service_providers',{
           id:{
-            type: Sequelize.DataTypes.UUID,
+            type: DataTypes.UUID,
             unique: true,
             primaryKey: true,
             defaultValue: () => uuid.v4(),
             allowNull: false,
           },
           name: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
             defaultValue: ''
           },
           contact: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
           },
           area: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             defaultValue: '',
             allowNull: false,
           },
           city: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
             defaultValue: ''
           },
           district: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
             defaultValue: ''
           },
           pincode: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
             defaultValue: ''
           },
           state: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
             defaultValue: ''
           },
           country: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
             defaultValue: ''
           },
           service_type: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             allowNull: false,
           },
           status: {
-            type: Sequelize.DataTypes.ENUM('pending', 'rejected', 'approved'),
+            type: DataTypes.ENUM('pending', 'rejected', 'approved'),
             defaultValue: 'pending',
             allowNull: false,
           },
           reject_reason: {
-            type: Sequelize.DataTypes.STRING,
+            type: DataTypes.STRING,
             defaultValue: '',
             allowNull: false,
           },
           user_uid: {
-            type: Sequelize.DataTypes.UUID,
+            type: DataTypes.UUID,
             references: {
               model: 'users',
               key: 'uid'
@@ -179,14 +181,14 @@ module.exports = {
             allowNull: false,
           },
           createdAt:{
-            type: Sequelize.DataTypes.DATE,
+            type: DataTypes.DATE,
             field: 'created_at',
             allowNull: false,
             defaultValue: Sequelize.NOW
           },
           updatedAt: {
             field: 'updated_at',
-            type: Sequelize.DataTypes.DATE,
+            type: DataTypes.DATE,
             allowNull: false,
             defaultValue: Sequelize.NOW
           }

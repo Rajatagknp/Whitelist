@@ -1,8 +1,8 @@
 const uuid = require('uuid');
 
 module.exports = (sequelize, DataTypes) => {
-  const ServiceProviders = sequelize.define("service_providers", {
-    id:{
+  return sequelize.define("service_providers", {
+    id: {
       type: DataTypes.UUID,
       unique: true,
       primaryKey: true,
@@ -72,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       allowNull: false,
     },
-    createdAt:{
+    createdAt: {
       type: DataTypes.DATE,
       field: 'created_at',
       allowNull: false,
@@ -85,5 +85,4 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: sequelize.NOW
     }
   });
-  return ServiceProviders;
 }

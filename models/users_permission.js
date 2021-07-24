@@ -1,7 +1,5 @@
-const bcrypt = require('bcryptjs');
-
 module.exports = (sequelize, DataTypes) => {
-  const UserPermissions = sequelize.define("user_permissions", {
+  return sequelize.define("user_permissions", {
     user_uid: {
       type: DataTypes.UUID,
       references: {
@@ -10,7 +8,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       allowNull: false,
       onUpdate: 'CASCADE',
-      onDelete: 'CASCADE'
+      onDelete: 'CASCADE',
+      primaryKey: true
     },
     permission_role: {
       type: DataTypes.ENUM('admin', 'user'),
@@ -18,11 +17,12 @@ module.exports = (sequelize, DataTypes) => {
         model: 'permissions',
         key: 'role'
       },
+      defaultValue: 'user',
       allowNull: false,
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE'
     },
-    createdAt:{
+    createdAt: {
       type: DataTypes.DATE,
       field: 'created_at',
       defaultValue: sequelize.NOW,
@@ -35,5 +35,4 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     }
   });
-  return UserPermissions;
 }

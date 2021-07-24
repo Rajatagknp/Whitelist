@@ -1,121 +1,105 @@
 const router = require('express').Router()
 const auth_token = require('../middleware/auth_token');
-const {Users,UsersPermissions,ServiceProviders} = require('../models');
 
+const db = require('../models')
 
 router.get("/", async (req, res) => {
     let idToken = req.headers.authorization
     if(idToken){
         // let decodedToken = admin.auth().verifyIdToken(idToken)
         // let uid = (await decodedToken).uid
-        let uid = idToken
-        let user = await Users.findOne({
+        let user = await db.users.findOne({
             where:{
-                "uid": uid
+                "uid": idToken
             }
         })
         if(user){
-            console.log(idToken)
-            let providers = await ServiceProviders.findAll({
-                attributes: ['id','service','name','pincode','contact']
-            },{
-                where:{
-                    "Status": 'Approved'
-                }
+            let providers = await db.service_providers.findAll({
+                where:{'status':'approved'},
+                attributes: ['id','service_type','name','pincode','contact']
             })
             res.send(providers)
-            return;
         }else{
             res.send({"message":"Sorry You are not the User"})
         }
     }else{
-        let providers = await ServiceProviders.findAll({
-            attributes: ['id','service','name','pincode']
-        },{
-            where:{
-                "Status": 'Approved'
-            }
+        let providers = await db.service_providers.findAll({
+            where:{'status':'approved'},
+            attributes: ['id','service_type','name','pincode']
         })
         res.send(providers)
-        return;
     }
 })
 
 router.post("/", auth_token, async (req, res) => {
     let uid = req.uid
-    let user = await UsersPermissions.findOne({
+    let user = await db.user_permissions.findOne({
         where:{
-            "uid": uid
+            "user_uid": uid
         }
     })
     let req_body = {
         ...req.body,
-        "uid":uid,
+        "user_uid":uid,
     }
-    let isadmin = user.permission
-    if(isadmin==='admin'){
+    let sysadmin = (user.permission_role==='admin')
+    if(sysadmin){
         req_body = {
             ...req_body,
-            "status":'Approved'
+            "status":'approved'
         }
-        let save_user = await ServiceProviders.create(req_body)
-        res.send(save_user)
-        return;
     }
-    let save_user = await ServiceProviders.create(req_body)
+    let save_user = await db.service_providers.create(req_body)
     res.send(save_user)
 })
 
 router.put("/",auth_token, async (req, res) => {
     let provider_id = req.query.provider_id
     let uid = req.uid
-    let provider = await ServiceProviders.update({
+    let provider = await db.service_providers.update({
         ...req.body
     },{
         where:{
             "id": provider_id,
-            "uid": uid
+            "user_uid": uid
         }
     })
+    console.log(provider)
     if(!provider[0]){
-        res.send({"message":"Provider is Not Avilable"})
-        return;
+        res.send({"message":"Provider is Not Available"})
     }else{
         res.send(provider)
-        return;
     }
 })
 
 router.delete("/",auth_token, async (req, res) => {
     let provider_id = req.query.provider_id
     let uid = req.uid
-    let provider = await ServiceProviders.destroy({
+    let provider = await db.service_providers.destroy({
         where:{
             "id": provider_id,
-            "uid": uid
+            "user_uid": uid
         }
     })
     if(!provider){
-        res.send({"message":"Provider is Not Avilable"})
-        return;
+        res.send({"message":"Provider is Not Available"})
     }else{
         res.send({"message":"Deleted"})
-        return;
     }
 })
 
 router.get("/pending",auth_token, async (req, res) => {
     let uid = req.uid
-    let user = await UsersPermissions.findOne({
+    let user = await db.user_permissions.findOne({
         where:{
-            "uid": uid
+            "user_uid": uid
         }
     })
-    let isadmin = user.permission
-    if(isadmin==='admin'){
-        let providers = await ServiceProviders.findAll({
+    let sysadmin = (user.permission==='admin')
+    if(sysadmin){
+        let providers = await db.service_providers.findAll({
             where:{
-                "status": 'Pending'
+                "status": 'pending'
             }
         })
         res.send(providers)
@@ -127,14 +111,14 @@ router.get("/pending",auth_token, async (req, res) => {
 router.put("/change_status",auth_token, async (req, res) => {
     let provider_id = req.query.provider_id
     let uid = req.uid
-    let user = await UsersPermissions.findOne({
+    let user = await db.user_permissions.findOne({
         where:{
-            "uid": uid
+            "user_uid": uid
         }
     })
-    let isadmin = user.permission
-    if(isadmin==='admin'){
-        let provider = await ServiceProviders.update({
+    let sysadmin = user.permission
+    if(sysadmin==='admin'){
+        let provider = await db.service_providers.update({
             ...req.body
         },{
             where:{
@@ -142,22 +126,23 @@ router.put("/change_status",auth_token, async (req, res) => {
             }
         })
         if(!provider[0]){
-            res.send({"message":"Provider is Not Avilable"})
+            res.send({"message":"Provider is Not Available"})
             return;
         }else{
             res.send({"message":"Updated"})
             return;
         }
     }
-    res.send({"Message":"You are not allowed, Only for Admin"})
+    res.send({"message":"You are not allowed, Only for Admin"})
 })
 
 router.get("/status",auth_token, async (req, res) => {
     let uid = req.uid
-    let providers = await ServiceProviders.findAll({
+    let providers = await db.service_providers.findAll({
         where:{
-            "uid": uid
-        }
+            "user_uid": uid
+        },
+        attributes: ['id','service_type','name','pincode','contact']
     })
     res.send(providers)
 })

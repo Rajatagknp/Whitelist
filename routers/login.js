@@ -1,34 +1,28 @@
 const router = require('express').Router();
 const auth_token = require('../middleware/auth_token');
-const { Users,UsersPermissions } = require("../models");
+const db = require('../models')
 
-
-router.post("/",auth_token, async (req, res) => {
-    let uid = req.uid
-    let contact = req.contact
-    let req_body = {
-        "contact": contact,
-        "uid": uid
+router.post('/',auth_token,async (req,res) => {
+    let user_table = {
+        'uid':req.uid,
+        'contact':req.contact,
     }
-    let per_req_body = {
-        'uid': uid
+    let user_table_per = {
+        'user_uid':user_table.uid,
     }
-    let user = await Users.findOne({
+    let user = await  db.users.findOne({
         where:{
-            "uid": uid
+            'uid':user_table.uid,
         }
     })
     if(user){
-        console.log('Phone No. is already in use')
-        res.send({"message":"Phone No. is already in use"});
-        return;
+        res.send({'message':'login'})
     }else{
-        await UsersPermissions.create(per_req_body)
-        await Users.create(req_body)
-        console.log('Phone No. is now registered')
-        res.send({"Message":"Now you are Registered"})
-        return;
+        await db.users.create(user_table)
+        await db.user_permissions.create(user_table_per)
+        res.send({'message':'created'})
     }
 })
+
 
 module.exports = router
