@@ -52,7 +52,7 @@ module.exports = {
             allowNull: false,
           }
         }, { transaction: t }),
-        
+
         queryInterface.createTable('permissions',{
           role: {
             type: DataTypes.ENUM('admin', 'user'),
@@ -76,6 +76,13 @@ module.exports = {
       ]);
       await Promise.all([
         queryInterface.createTable('user_permissions',{
+          id: {
+            type: DataTypes.UUID,
+            unique: true,
+            allowNull: false,
+            defaultValue: () => uuid.v4(),
+            primaryKey: true
+          },
           user_uid: {
             type: DataTypes.UUID,
             references: {
@@ -193,7 +200,7 @@ module.exports = {
             defaultValue: Sequelize.NOW
           }
         }, { transaction: t }),
-      ])
+      ]);
     })
   },
 

@@ -18,9 +18,14 @@ router.get("/", async (req, res) => {
                 where:{'status':'approved'},
                 attributes: ['id','service_type','name','pincode','contact']
             })
+            console.log(providers)
             res.send(providers)
         }else{
-            res.send({"message":"Sorry You are not the User"})
+            let providers = await db.service_providers.findAll({
+                where:{'status':'approved'},
+                attributes: ['id','service_type','name','pincode']
+            })
+            res.send(providers)
         }
     }else{
         let providers = await db.service_providers.findAll({

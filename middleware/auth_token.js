@@ -2,6 +2,7 @@ const admin = require('firebase-admin');
 
 const auth_token = (req, res, next) => {
     let idToken = req.headers.authorization
+    console.log(123)
     if(idToken){
         admin.auth().verifyIdToken(idToken).then((decodedToken) => {
             req.authtoken = 'decodedToken';

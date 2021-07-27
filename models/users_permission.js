@@ -1,5 +1,14 @@
+const uuid = require('uuid');
+
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define("user_permissions", {
+    id: {
+      type: DataTypes.UUID,
+      unique: true,
+      allowNull: false,
+      defaultValue: () => uuid.v4(),
+      primaryKey: true
+    },
     user_uid: {
       type: DataTypes.UUID,
       references: {
@@ -9,7 +18,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
-      primaryKey: true
     },
     permission_role: {
       type: DataTypes.ENUM('admin', 'user'),
